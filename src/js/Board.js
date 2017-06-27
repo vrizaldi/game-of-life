@@ -21,17 +21,19 @@ class Board extends React.Component {
 
 	componentWillMount() {
 	
-		this.reset();
+		this.reset(true);
 	}
 
-	reset() {
-		clearInterval(this.loopID);
-			// the game loop
+	reset(random) {
+		this.pauseGame();
+
+		// reset game
 		var grids = [];
 		for(var x = 0; x < this.width; x++) {
 			var col = [];
 			for(var y = 0; y < this.height; y++) {
-				col.push(false);
+				if(random) col.push(Math.random() > 0.5 ? true : false);
+				else col.push(false);
 			}
 			grids.push(col);
 		}
@@ -42,7 +44,7 @@ class Board extends React.Component {
 	}
 
 	startGame() {
-		this.loopID = setInterval(mainLoop, 1000);
+		this.loopID = setInterval(this.mainLoop.bind(this), 1000);
 			// tick every 1 second
 	}
 
@@ -50,7 +52,7 @@ class Board extends React.Component {
 		var { grids, gen } = this.state;
 		for(var x = 0; x < this.width; x++) {
 			for(var y = 0; y < this.height; y++) {
-				if(this.has3Neighbour(grids[x][y])) {
+				if(this.has3Neighbours(x, y)) {
 					// has 3 neighbour
 					if(!grids[x][y]) {
 						// and is previously dead
@@ -66,11 +68,42 @@ class Board extends React.Component {
 				}
 			}
 		}
-
+		
 		gen++;
 		this.setState({grids, gen});
 	}
+
+	has3Neighbours(x, y) {
+		var { grids } = this.state;
+		var total = 0;
+		if(x > 0 && y > 0 && grids[x - 1][y - 1]) total++;			
+			// top left
+		if(y > 0) {
+			if(grids[x][y - 1]) total++;
+				// top mid
+			if(grids[x + 1][y - 1]) total++;
+				// top right
+		}
+		if(x > 0) {
+			if(grids[x - 1][y]) total++;
+				// mid left
+			if(grids[x - 1][y + 1]) total++;
+				// bot left
+		}
+		if(grids[x + 1][y]) total++;
+			// mid right
+		if(grids[x][y + 1]) total++;
+			// bot mid
+		if(grids[x + 1][y + 1]) total++;
+		
+		if(total < 3) return false;
+		else return true;
+	}
 	
+	pauseGame() {
+		clearInterval(this.loopID);
+			// terminate the game loop
+	}
 
 	toggleAlive(x, y) {
 //		console.log("toggling (" + x + ", " + y + ")")
@@ -79,12 +112,30 @@ class Board extends React.Component {
 		this.setState({grids});
 	}
 
+	render() {
+		return(
+		<div>
+			<SystemOpt
+					startGame={this.startGame.bind(this)}
+					pauseGame={this.pauseGame.bind(this)}
+					reset={this.reset.bind(this)}/>
+			<p id="generation">Generation: {this.state.gen}</p>
+			<table>
+				<tbody>
+					{this.state.grids.map(this.renderGrids.bind(this))}
+				</tbody>
+			</table>
+		</div>
+		);
+	}
+
 	renderGrids(col, x) {
 		var that = this;
+
 		return(
 		<tr>
 			{col.map(
-					function() {
+					function(alive, y) {
 						return(<Grid 
 											toggleAlive={that.toggleAlive.bind(that)}
 											key={x + "," + y}
@@ -94,23 +145,6 @@ class Board extends React.Component {
 					})
 			}
 		</tr>);
-	}
-
-	render() {
-		return(
-		<div>
-			<SystemOpt
-					startGame={this.startGame.bind(this)}
-					pauseGame={this.pauseGame.bind(this)}
-					resetGame={this.reset.bind(this)}/>
-			<p id="generation">Generation: {this.state.gen}</p>
-			<table>
-				<tbody>
-					{this.state.grids.map(this.renderGrids)}
-				</tbody>
-			</table>
-		</div>
-		);
 	}
 
 }

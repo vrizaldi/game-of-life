@@ -3,7 +3,6 @@ import { Link } from "react-router";
 
 import Title from "./Title";
 import GridSizeOpt from "./GridSizeOpt";
-import SystemOpt from "./SystemOpt";
 
 export default class Layout extends React.Component {
 
@@ -41,7 +40,6 @@ export default class Layout extends React.Component {
 			<Link to="50x50"><button>50x50</button></Link>
 			<Link to="75x75"><button>75x75</button></Link>
 			<Link to="100x100"><button>100x100</button></Link>
-			<SystemOpt changeGameState={this.changeGameState.bind(this)} />
 			{this.props.children}
 		</div>
 		);
