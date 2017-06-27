@@ -32,7 +32,7 @@ class Board extends React.Component {
 		for(var x = 0; x < this.width; x++) {
 			var col = [];
 			for(var y = 0; y < this.height; y++) {
-				if(random) col.push(Math.random() > 0.5 ? true : false);
+				if(random) col.push(Math.random() > 0.9 ? true : false);
 				else col.push(false);
 			}
 			grids.push(col);
