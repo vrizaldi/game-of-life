@@ -11,10 +11,12 @@ class Board extends React.Component {
 		this.height = height;
 
 		this.state = {
-			grids: []
+			grids: [],
+			gen: 1
 		}
-		this.loopID = 0;
 			// [x][y]
+
+		this.loopID = 0;
 	}
 
 	componentWillMount() {
@@ -23,6 +25,8 @@ class Board extends React.Component {
 	}
 
 	reset() {
+		clearInterval(this.loopID);
+			// the game loop
 		var grids = [];
 		for(var x = 0; x < this.width; x++) {
 			var col = [];
@@ -31,14 +35,65 @@ class Board extends React.Component {
 			}
 			grids.push(col);
 		}
-		this.setState({grids});
+		this.setState({
+			grids, 
+			gen: 1
+		});
 	}
 
+	startGame() {
+		this.loopID = setInterval(mainLoop, 1000);
+			// tick every 1 second
+	}
+
+	mainLoop() {
+		var { grids, gen } = this.state;
+		for(var x = 0; x < this.width; x++) {
+			for(var y = 0; y < this.height; y++) {
+				if(this.has3Neighbour(grids[x][y])) {
+					// has 3 neighbour
+					if(!grids[x][y]) {
+						// and is previously dead
+						// make it alive
+						this.toggleAlive(x, y);
+					}
+
+				} else if(grids[x][y]) {
+					// doesn't have 3 neighbours
+					// and is alive
+					// kill it
+					this.toggleAlive(x, y);
+				}
+			}
+		}
+
+		gen++;
+		this.setState({grids, gen});
+	}
+	
+
 	toggleAlive(x, y) {
-		console.log("toggling (" + x + ", " + y + ")")
+//		console.log("toggling (" + x + ", " + y + ")")
 		var grids = this.state.grids;
 		grids[x][y] = !grids[x][y];
 		this.setState({grids});
+	}
+
+	renderGrids(col, x) {
+		var that = this;
+		return(
+		<tr>
+			{col.map(
+					function() {
+						return(<Grid 
+											toggleAlive={that.toggleAlive.bind(that)}
+											key={x + "," + y}
+											posX={x}
+											posY={y}
+											alive={alive ? "alive" : "dead"} /> ); 	
+					})
+			}
+		</tr>);
 	}
 
 	render() {
@@ -48,30 +103,16 @@ class Board extends React.Component {
 					startGame={this.startGame.bind(this)}
 					pauseGame={this.pauseGame.bind(this)}
 					resetGame={this.reset.bind(this)}/>
+			<p id="generation">Generation: {this.state.gen}</p>
 			<table>
 				<tbody>
-					{this.state.grids.map(
-							(col, x) => {
-								return(
-								<tr>
-									{
-										col.map(
-											(alive, y) => {
-												return(<Grid 
-																	toggleAlive={this.toggleAlive.bind(this)}
-																	key={x + "," + y}
-																	posX={x}
-																	posY={y}
-																	alive={alive ? "alive" : "dead"} />); 	
-											})
-									}
-								</tr>);
-							})}
+					{this.state.grids.map(this.renderGrids)}
 				</tbody>
 			</table>
-		<div>
+		</div>
 		);
 	}
+
 }
 
 export class Board50 extends Board {
@@ -91,10 +132,4 @@ export class Board100 extends Board {
 		super(100, 100);
 	}
 }
-/*
-						alive ? 
-													(<td onClick={} 
-															className="alive"></td>)
-													: (<td 
-															className="dead"></td>);
-															*/
+
