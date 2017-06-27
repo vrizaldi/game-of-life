@@ -3,10 +3,10 @@ import React from "react";
 export default class Title extends React.Component {
 
 	render() {
-		return() {
+		return( 
 		<h1>
 			Game of Life
 		</h1>
-		}
+		)
 	}
 }
