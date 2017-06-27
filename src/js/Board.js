@@ -44,12 +44,16 @@ class Board extends React.Component {
 	}
 
 	startGame() {
-		this.loopID = setInterval(this.mainLoop.bind(this), 200);
+		this.pauseGame();
+			// prevent double loop
+		this.loopID = setInterval(this.mainLoop.bind(this), 500);
 			// tick every 1 second
 	}
 
 	mainLoop() {
 		var { grids, gen } = this.state;
+		var nGrids = grids.slice(0);
+			// clone grids for update
 		for(var x = 0; x < this.width; x++) {
 			for(var y = 0; y < this.height; y++) {
 				if(this.has3Neighbours(x, y)) {
@@ -57,20 +61,20 @@ class Board extends React.Component {
 					if(!grids[x][y]) {
 						// and is previously dead
 						// make it alive
-						grids[x][y] = true;
+						nGrids[x][y] = true;
 					}
 
 				} else if(grids[x][y]) {
 					// doesn't have 3 neighbours
 					// and is alive
 					// kill it
-					grids[x][y] = false;
+					nGrids[x][y] = false;
 				}
 			}
 		}
 		
 		gen++;
-		this.setState({grids, gen});
+		this.setState({grids: nGrids, gen});
 	}
 
 	has3Neighbours(x, y) {
