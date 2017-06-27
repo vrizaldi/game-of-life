@@ -46,14 +46,17 @@ class Board extends React.Component {
 	startGame() {
 		this.pauseGame();
 			// prevent double loop
-		this.loopID = setInterval(this.mainLoop.bind(this), 500);
+		this.loopID = setInterval(this.mainLoop.bind(this), 1000);
 			// tick every 1 second
 	}
 
 	mainLoop() {
 		var { grids, gen } = this.state;
-		var nGrids = grids.slice(0);
-			// clone grids for update
+		var nGrids = [];
+		for(var x = 0; x < grids.length; x++) {
+			// clone the grid
+			nGrids.push(grids[x].slice(0));
+		}
 		for(var x = 0; x < this.width; x++) {
 			for(var y = 0; y < this.height; y++) {
 				if(this.has3Neighbours(x, y)) {
