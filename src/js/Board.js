@@ -44,7 +44,7 @@ class Board extends React.Component {
 	}
 
 	startGame() {
-		this.loopID = setInterval(this.mainLoop.bind(this), 1000);
+		this.loopID = setInterval(this.mainLoop.bind(this), 200);
 			// tick every 1 second
 	}
 
@@ -57,14 +57,14 @@ class Board extends React.Component {
 					if(!grids[x][y]) {
 						// and is previously dead
 						// make it alive
-						this.toggleAlive(x, y);
+						grids[x][y] = true;
 					}
 
 				} else if(grids[x][y]) {
 					// doesn't have 3 neighbours
 					// and is alive
 					// kill it
-					this.toggleAlive(x, y);
+					grids[x][y] = false;
 				}
 			}
 		}
@@ -81,20 +81,21 @@ class Board extends React.Component {
 		if(y > 0) {
 			if(grids[x][y - 1]) total++;
 				// top mid
-			if(grids[x + 1][y - 1]) total++;
+			if(x < this.width - 1&& grids[x + 1][y - 1]) total++;
 				// top right
 		}
 		if(x > 0) {
 			if(grids[x - 1][y]) total++;
 				// mid left
-			if(grids[x - 1][y + 1]) total++;
+			if(y < this.height - 1 && grids[x - 1][y + 1]) total++;
 				// bot left
 		}
-		if(grids[x + 1][y]) total++;
+		if(x < this.width - 1 && grids[x + 1][y]) total++;
 			// mid right
 		if(grids[x][y + 1]) total++;
 			// bot mid
-		if(grids[x + 1][y + 1]) total++;
+		if(x < this.width - 1 && y < this.height - 1 && grids[x + 1][y + 1]) total++;
+			// bot right
 		
 		if(total < 3) return false;
 		else return true;
