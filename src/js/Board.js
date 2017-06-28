@@ -59,16 +59,21 @@ class Board extends React.Component {
 		}
 		for(var x = 0; x < this.width; x++) {
 			for(var y = 0; y < this.height; y++) {
-				if(this.has3Neighbours(x, y)) {
-					// has 3 neighbour
+				if(this.hasNeighbours(x, y, 2)) {
+					// has 2 neighbour
+					if(this.hasNeighbours(x, y, 4)) {
+						// overpopulation
+						// kill it
+						if(grids[x][y]) nGrids[x][y] = false
+					}
 					if(!grids[x][y]) {
-						// and is previously dead
+						// reproduction
 						// make it alive
 						nGrids[x][y] = true;
 					}
 
 				} else if(grids[x][y]) {
-					// doesn't have 3 neighbours
+					// underpopulation
 					// and is alive
 					// kill it
 					nGrids[x][y] = false;
@@ -80,7 +85,7 @@ class Board extends React.Component {
 		this.setState({grids: nGrids, gen});
 	}
 
-	has3Neighbours(x, y) {
+	hasNeighbours(x, y, min) {
 		var { grids } = this.state;
 		var total = 0;
 		if(x > 0 && y > 0 && grids[x - 1][y - 1]) total++;			
@@ -104,7 +109,7 @@ class Board extends React.Component {
 		if(x < this.width - 1 && y < this.height - 1 && grids[x + 1][y + 1]) total++;
 			// bot right
 		
-		if(total < 3) return false;
+		if(total < min) return false;
 		else return true;
 	}
 	
